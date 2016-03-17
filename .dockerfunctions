@@ -82,7 +82,7 @@ irssi() {
   --log-driver=none \
   -v "$HOME/.irssi:/home/user/.irssi:ro" \
   -e TERM --name irssi \
-  draco1114/irssi:dev
+  draco1114/irssi
 
 }
 
