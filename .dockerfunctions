@@ -17,11 +17,14 @@ del_stopped(){
 
 
 aws(){
+
+  local vol="$HOME/.aws"
+
   docker run -it --rm \
-    -v $HOME/.aws:/root/.aws \
+    -v ${vol}:/root/.aws \
     --log-driver none \
-    --name aws \
-    mthomas/aws "$@"
+    --name awscli \
+    draco1114/aws "$@"
 
 }
 
@@ -41,7 +44,7 @@ blob() {
     -v ${vol}:/blobdata \
     -w /blobdata \
     --name app_blob \
-    draco1114/blobxfer:latest "$@"
+    draco1114/blobxfer "$@"
 
 }
 
