@@ -1,0 +1,93 @@
+#!/bin/bash
+
+dcleanup(){
+    docker rm -v $(docker ps --filter status=exited -q 2>/dev/null) 2>/dev/null
+    docker rmi $(docker images --filter dangling=true -q 2>/dev/null) 2>/dev/null
+}
+
+
+del_stopped(){
+  local name=$1
+  local state=$(docker inspect --format "{{.State.Running}}" $name 2>/dev/null)
+
+  if [[ "$state" == "false" ]]; then
+    docker rm $name
+  fi
+}
+
+
+aws(){
+  docker run -it --rm \
+    -v $HOME/.aws:/root/.aws \
+    --log-driver none \
+    --name aws \
+    mthomas/aws "$@"
+
+}
+
+blob() {
+  # Container for the blobxfer script to keep it from
+  # eating all the resource of my workstation 
+
+  local vol="/Users/${USER}/blobdata"
+
+  if [ -d ${vol} ]; then
+    :
+  else
+    mkdir -p ${vol}
+  fi
+
+  docker run -it --rm \
+    -v ${vol}:/blobdata \
+    -w /blobdata \
+    --name app_blob \
+    draco1114/blobxfer:latest "$@"
+
+}
+
+azurecli() {
+  # Create a container to run the Azure-CLI tools
+  local vol="${USER}/azuredatastore"
+
+  if [ -d ${vol} ]; then
+    :
+  else
+    mkdir -p ${vol}
+  fi
+
+  clear
+
+  docker run -it --rm \
+    -v ${vol}:/data \
+    -w /data \
+    --name azurecli \
+    draco1114/azurecli:latest
+
+}
+
+hollywood(){
+  docker run --rm -it \
+    --name hollywood \
+    jess/hollywood
+}
+
+irssi() {
+
+  del_stopped irssi
+
+  docker run --rm -it \
+  --log-driver=none \
+  -v "$HOME/.irssi:/home/user/.irssi:ro" \
+  -e TERM --name irssi \
+  draco1114/irssi:dev
+
+}
+
+lynx(){
+  docker run --rm -it \
+    --name lynx \
+    jess/lynx "$@"
+}
+
+
+
